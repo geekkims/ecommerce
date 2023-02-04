@@ -6,13 +6,14 @@ from store.models import Product
 # Create your views here.
 
 def _cart_id(request):
-    cart=request.session.session_key
-    if not cart:
-        cart=request.session.create()
-    return cart
+    cart_id = request.session.session_key
+    if not cart_id:
+        cart_id = request.session.create()
+    return cart_id
+
 
 def add_cart(request,product_id):
-    product =Product.objects.get(id=product_id)#get the product
+    product = Product.objects.get(id=product_id)    # Get object productget the product
     try:
         cart=Cart.objects.get(cart_id=_cart_id(request))#get the cart using the cart_id present in the session
     except Cart.DoesNotExist:
@@ -34,13 +35,27 @@ def add_cart(request,product_id):
         )
         cart_item.save()
     print(cart_item.product)
-    return HttpResponse(cart_item.quantity)
+    return redirect('cart')
+
+
+def cart(request, total=0, quantity=0 ,cart_items=None):
+
+    try:
+        cart = Cart.objects.get(cart_id=_cart_id(request))
+        cart_items = CartItem.objects.filter(cart=cart, is_active=True)
+        for cart_item in cart_items:
+            total += (cart_item.product.price * cart_item.quantity)
+            quantity += cart_item.quantity
+            # print(total)
+            # print(quantity)
+    except ObjectNotExist:
+        pass
+    context = {
+        "total":total,
+        "quantity":quantity,
+        "cart_items":cart_items,
+
+
+    }
     
-
-
-    exit()
-    # return redirect('cart')
-
-
-def cart(request):
-    return render(request,'frontend/store/cart.html')
+    return render(request,'frontend/store/cart.html',context)
