@@ -6,6 +6,8 @@ from category.models import Category
 from django.core.paginator import EmptyPage,PageNotAnInteger,Paginator
 from store.models import Product
 from django.db.models import Q
+import json
+from django.http import JsonResponse
 # Create your views here.
 
 def store(request,category_slug=None):
@@ -63,3 +65,13 @@ def search(request):
         "product_count":product_count,
     }
     return render(request,'frontend/store/store.html',context)
+
+
+def search_product(request):
+    if request.method == 'POST':
+        keyword = json.loads(request.body).get('searchText')
+        products = Product.objects.filter(
+            product_name__icontains=keyword) | Product.objects.filter(
+            description__icontains=keyword) 
+        data = products.values()
+        return JsonResponse(list(data), safe=False)
