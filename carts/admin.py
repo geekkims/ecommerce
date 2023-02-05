@@ -1,14 +1,15 @@
 from django.contrib import admin
 
-from carts.models import Cart, CartItem, Variation
+from carts.models import Cart, CartItem
 
 # Register your models here.
-class VariationAdmin(admin.ModelAdmin):
-    list_display=('product','variation_category','variation_value','is_active','created_date')
-    list_editable=('is_active',)
-    list_filter=('product','variation_category')
+
+class CartAdmin(admin.ModelAdmin):
+    list_display=('cart_id','date_added')
+
+class CartItemAdmin(admin.ModelAdmin):
+    list_display=('product','cart','quantity','is_active')
 
 
-admin.site.register(Cart)
-admin.site.register(CartItem)
-admin.site.register(Variation,VariationAdmin)
+admin.site.register(Cart,CartAdmin)
+admin.site.register(CartItem,CartItemAdmin)
